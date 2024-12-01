@@ -1,13 +1,11 @@
 <?php
 //conexion a la base de datos
 $conn = new mysqli('localhost', 'root', '', 'asistencias');
-
 // Variables para el filtro
 $filtro_fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
 $filtro_codigo = isset($_GET['codigo']) ? $_GET['codigo'] : '';
 $filtro_nombre = isset($_GET['nombre']) ? $_GET['nombre'] : '';
 $filtro_tipo = isset($_GET['tipo']) ? $_GET['tipo'] : '';
-
 // Construcción de la consulta con filtros
 $sql = "SELECT * FROM inventario WHERE 1=1";
 if (!empty($filtro_fecha)) {
@@ -22,9 +20,7 @@ if (!empty($filtro_nombre)) {
 if (!empty($filtro_tipo)) {
     $sql .= " AND tipo = '$filtro_tipo'";
 }
-
 $result = $conn->query($sql);
-
 // Consulta para sumar entradas y salidas
 $sql_sum = "SELECT tipo, SUM(cantidad) AS total_cantidad FROM inventario WHERE 1=1";
 if (!empty($filtro_fecha)) {
@@ -40,11 +36,9 @@ if (!empty($filtro_tipo)) {
     $sql_sum .= " AND tipo = '$filtro_tipo'";
 }
 $sql_sum .= " GROUP BY tipo"; // Agrupar por tipo
-
 $result_sum = $conn->query($sql_sum);
 $suma_entradas = 0;
 $suma_salidas = 0;
-
 // Procesar la suma
 if ($result_sum->num_rows > 0) {
     while ($row = $result_sum->fetch_assoc()) {
@@ -63,6 +57,40 @@ if ($result_sum->num_rows > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reporte de Inventario con Filtros</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Color de fondo suave */
+        }
+        header {
+            margin-bottom: 20px; /* Espaciado inferior */
+        }
+        .container {
+            max-width: 800px; /* Ancho máximo del contenedor */
+            margin-top: 50px; /* Margen superior */
+            padding: 20px; /* Espaciado interno */
+            background-color: white; /* Fondo blanco para el contenedor */
+            border-radius: 10px; /* Bordes redondeados */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        }
+        h1 {
+            color: #007bff; /* Color del título */
+        }
+        .btn {
+            transition: background-color 0.3s, transform 0.2s; /* Transiciones suaves */
+        }
+        .btn:hover {
+            background-color: #0056b3; /* Color de fondo al pasar el ratón */
+            transform: scale(1.05); /* Efecto de aumento */
+        }
+        .sumas {
+            border-top: 2px solid #007bff; /* Línea superior */
+            padding-top: 10px; /* Espaciado superior */
+            margin-top: 20px; /* Margen superior */
+        }
+        .sumas h5 {
+            color: #343a40; /* Color del texto de las sumas */
+        }
+    </style>
 </head>
 <header>
     <a href="index.html" class="btn btn-primary">Volver</a>
@@ -131,12 +159,11 @@ if ($result_sum->num_rows > 0) {
             </tbody>
         </table>
         <!-- Sumas de Entradas y Salidas -->
-        <div class="mt-4">
+        <div class="sumas mt-4">
             <h5>Sumas Totales</h5>
-            <p>Entradas: <?= $suma_entradas ?></p>
-            <p>Salidas: <?= $suma_salidas ?></p>
+            <p>Entradas: <strong><?= $suma_entradas ?></strong></p>
+            <p>Salidas: <strong><?= $suma_salidas ?></strong></p>
         </div>
     </div>
 </body>
 </html>
-  
