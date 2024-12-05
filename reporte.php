@@ -1,11 +1,13 @@
 <?php
-//conexion a la base de datos
+// Conexión a la base de datos
 $conn = new mysqli('localhost', 'root', '', 'asistencias');
+
 // Variables para el filtro
 $filtro_fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
 $filtro_codigo = isset($_GET['codigo']) ? $_GET['codigo'] : '';
 $filtro_nombre = isset($_GET['nombre']) ? $_GET['nombre'] : '';
 $filtro_tipo = isset($_GET['tipo']) ? $_GET['tipo'] : '';
+
 // Construcción de la consulta con filtros
 $sql = "SELECT * FROM inventario WHERE 1=1";
 if (!empty($filtro_fecha)) {
@@ -21,8 +23,9 @@ if (!empty($filtro_tipo)) {
     $sql .= " AND tipo = '$filtro_tipo'";
 }
 $result = $conn->query($sql);
-// Consulta para sumar entradas y salidas
-$sql_sum = "SELECT tipo, SUM(cantidad) AS total_cantidad FROM inventario WHERE 1=1";
+
+// Consulta para sumar entradas, salidas y calcular el valor total de salidas
+$sql_sum = "SELECT tipo, SUM(cantidad) AS total_cantidad, SUM(cantidad * precio) AS total_valor FROM inventario WHERE 1=1";
 if (!empty($filtro_fecha)) {
     $sql_sum .= " AND fecha = '$filtro_fecha'";
 }
@@ -37,18 +40,25 @@ if (!empty($filtro_tipo)) {
 }
 $sql_sum .= " GROUP BY tipo"; // Agrupar por tipo
 $result_sum = $conn->query($sql_sum);
+
 $suma_entradas = 0;
 $suma_salidas = 0;
-// Procesar la suma
+$total_valor_salidas = 0; // Variable para el valor total de las salidas
+
+// Procesar las sumas
 if ($result_sum->num_rows > 0) {
     while ($row = $result_sum->fetch_assoc()) {
         if ($row['tipo'] === 'entrada') {
             $suma_entradas = $row['total_cantidad'];
         } elseif ($row['tipo'] === 'salida') {
             $suma_salidas = $row['total_cantidad'];
+            $total_valor_salidas = $row['total_valor']; // Sumar el valor total de salidas
         }
     }
 }
+
+// Calcular el total de productos restantes
+$total_restante = $suma_entradas - $suma_salidas;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -158,11 +168,13 @@ if ($result_sum->num_rows > 0) {
                 <?php endif; ?>
             </tbody>
         </table>
-        <!-- Sumas de Entradas y Salidas -->
+        <!-- Sumas de Entradas, Salidas, Valor Total de Salidas y Total Restante -->
         <div class="sumas mt-4">
             <h5>Sumas Totales</h5>
             <p>Entradas: <strong><?= $suma_entradas ?></strong></p>
             <p>Salidas: <strong><?= $suma_salidas ?></strong></p>
+            <p>Valor Total de Salidas: <strong>$<?= number_format($total_valor_salidas, 2) ?></strong></p>
+            <p>Productos Restantes: <strong><?= $total_restante ?></strong></p>
         </div>
     </div>
 </body>
