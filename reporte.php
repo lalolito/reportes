@@ -1,6 +1,6 @@
 <?php
 // Conexión a la base de datos
-$conn = new mysqli('localhost', 'root', '', 'asistencias');
+$conn = new mysqli('localhost', 'root', '', 'asistencias_jhon_harold');
 
 // Variables para el filtro
 $filtro_fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
@@ -104,7 +104,8 @@ $total_restante = $suma_entradas - $suma_salidas;
 </head>
 <header>
     <a href="index.html" class="btn btn-primary">Volver</a>
-</header>
+    <a href="exportar_pdf.php?fecha=<?= $filtro_fecha ?>&codigo=<?= $filtro_codigo ?>&nombre=<?= $filtro_nombre ?>&tipo=<?= $filtro_tipo ?>" class="btn btn-danger">Exportar a PDF</a>
+    </header>
 <body class="bg-light">
     <div class="container mt-5">
         <h1 class="text-center">Reporte de Inventario</h1>
